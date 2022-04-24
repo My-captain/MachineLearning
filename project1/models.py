@@ -19,5 +19,5 @@ net = nn.Sequential(
     nn.ReLU(),
     nn.Dropout(),
     nn.Linear(50, 10),
-    nn.LogSoftmax()
+    nn.LogSoftmax(dim=1)
 )

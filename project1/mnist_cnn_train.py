@@ -17,11 +17,11 @@ import torch.nn.functional as functional
 
 from project1.models import net
 
-n_epoch = 20
+n_epoch = 100
 learning_rate = 0.01
-train_batch_size = 64
-test_batch_size = 64
-writer = SummaryWriter(log_dir=f"./cnn_lr{learning_rate}_{n_epoch}epoch", flush_secs=2)
+train_batch_size = 512
+test_batch_size = 512
+writer = SummaryWriter(log_dir=f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch", flush_secs=2)
 
 least_loss = 10e5
 cuda_available = torch.cuda.is_available()
@@ -82,10 +82,10 @@ for epoch in range(n_epoch):
     valid_loss, valid_acc = fit(epoch, net, test_dataloader, loss_fn, optimizer, phase="valid")
     if valid_loss < least_loss:
         least_loss = valid_loss
-        if not os.path.exists(f"./cnn_lr{learning_rate}_{n_epoch}epoch"):
-            os.mkdir(f"./cnn_lr{learning_rate}_{n_epoch}epoch")
-        torch.save(net, f"./cnn_lr{learning_rate}_{n_epoch}epoch/model_serial")
-        with open(f"./cnn_lr{learning_rate}_{n_epoch}epoch/model_serial_info.txt", mode="w", encoding="utf8") as fp:
+        if not os.path.exists(f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch"):
+            os.mkdir(f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch")
+        torch.save(net, f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch/model_serial")
+        with open(f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch/model_serial_info.txt", mode="w", encoding="utf8") as fp:
             fp.write(f"valid loss:{valid_loss}")
 
 
