@@ -15,12 +15,15 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as functional
 
-from project1.models import net
+# from project1.models import net
+import project1.models
 
-n_epoch = 100
+net = project1.models.Model()
+
+n_epoch = 80
 learning_rate = 0.01
-train_batch_size = 512
-test_batch_size = 512
+train_batch_size = 1024
+test_batch_size = 1024
 writer = SummaryWriter(log_dir=f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch", flush_secs=2)
 
 least_loss = 10e5
