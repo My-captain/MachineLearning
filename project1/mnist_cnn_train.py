@@ -16,15 +16,14 @@ import torch.nn as nn
 import torch.nn.functional as functional
 
 # from project1.models import net
-import project1.models
-
-net = project1.models.Model()
+from project1.models import Model
 
 n_epoch = 80
 learning_rate = 0.01
-train_batch_size = 1024
-test_batch_size = 1024
-writer = SummaryWriter(log_dir=f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch", flush_secs=2)
+train_batch_size = 5120
+test_batch_size = 5120
+model_name = f"origin_cnn_lr{learning_rate}_{n_epoch}epoch"
+writer = SummaryWriter(log_dir=f"./runs/{model_name}", flush_secs=2)
 
 least_loss = 10e5
 cuda_available = torch.cuda.is_available()
@@ -55,6 +54,7 @@ def fit(epoch, model, dataloader, criterion, optimizer, phase="train"):
         if phase == "train":
             loss.backward()
             optimizer.step()
+        print(f'Epoch: [{epoch+1}][{batch_idx+1}/{len(dataloader)}] \tLoss：{loss.item():.4f} \tAcc：{float(predict.eq(target).sum().item())/len(target):.4f}')
 
     loss = run_loss / len(dataloader.dataset)
     accuracy = float(run_correct) / len(dataloader.dataset)
@@ -74,7 +74,25 @@ test_dataset = datasets.MNIST(root="./mnistDataset/", train=False, transform=tra
 train_dataloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=test_batch_size, shuffle=True)
 
-loss_fn = nn.NLLLoss()
+# loss_fn = nn.NLLLoss()
+# net = nn.Sequential(
+#     nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5),
+#     nn.MaxPool2d(kernel_size=2),
+#     nn.ReLU(),
+#     nn.Conv2d(in_channels=10, out_channels=20, kernel_size=5),
+#     nn.Dropout2d(),
+#     nn.MaxPool2d(kernel_size=2),
+#     nn.ReLU(),
+#     nn.Flatten(),
+#     nn.Linear(320, 50),
+#     nn.ReLU(),
+#     nn.Dropout(),
+#     nn.Linear(50, 10),
+#     nn.LogSoftmax(dim=1)
+# )
+
+loss_fn = nn.CrossEntropyLoss()
+net = Model()
 optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.5)
 if cuda_available:
     net = net.to("cuda")
@@ -85,10 +103,10 @@ for epoch in range(n_epoch):
     valid_loss, valid_acc = fit(epoch, net, test_dataloader, loss_fn, optimizer, phase="valid")
     if valid_loss < least_loss:
         least_loss = valid_loss
-        if not os.path.exists(f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch"):
-            os.mkdir(f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch")
-        torch.save(net, f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch/model_serial")
-        with open(f"./runs/cnn_lr{learning_rate}_{n_epoch}epoch/model_serial_info.txt", mode="w", encoding="utf8") as fp:
+        if not os.path.exists(f"./runs/{model_name}"):
+            os.mkdir(f"./runs/{model_name}")
+        torch.save(net, f"./runs/{model_name}/model_serial")
+        with open(f"./runs/{model_name}/model_serial_info.txt", mode="w", encoding="utf8") as fp:
             fp.write(f"valid loss:{valid_loss}")
 
 
