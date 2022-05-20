@@ -65,7 +65,8 @@ device = "cuda"
 current_loss = 0
 all_losses = []
 
-rnn = RNN(n_letters, n_hidden, n_categories).to(device)
+# rnn = RNN(n_letters, n_hidden, n_categories).to(device)
+rnn = nn.LSTM(n_letters, n_hidden, bidirectional=False).to(device)
 optimizer = torch.optim.SGD(rnn.parameters(), lr=learning_rate, momentum=0.5)
 
 
